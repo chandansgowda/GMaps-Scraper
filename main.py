@@ -1,4 +1,7 @@
 from selenium import webdriver
+import pandas as pd
+import xlsxwriter
+
 
 class GoogleMapScraper:
 
@@ -26,8 +29,23 @@ class GoogleMapScraper:
         #add business info to business list
         self.business_list.append(self.business_info)
 
+def create_xlsx_file (file_path: str, headers: dict, items: list):
+    with xlsxwriter.Workbook(file_path) as workbook:
+        worksheet = workbook.add_worksheet()
+        worksheet.write_row(row=0, col=0, data=headers.values())
+        header_keys = list(headers.keys())
+        for index, item in enumerate(items):
+            row = map(lambda field_id: item.get(field_id, ''), header_keys)
+            worksheet.write_row(row=index + 1, col=0, data=row)
+
+df = pd.read_excel('Book1.xlsx',) # can also index sheet by name or fetch all sheets
+# urls = df['A'].tolist()
 urls = ["https://g.page/suyoghospitalmysore?share",]
 BusinessScraper = GoogleMapScraper()
 for url in urls:
     BusinessScraper.get_business_info(url)
 print(BusinessScraper.business_info)
+
+headers = {'name': 'Name', 'rating': 'Rating', 'reviews_count': 'Reviews Count', 'address': 'Address', 'contact': 'COVID-19 info · medisync.org', 'website': 'website'}
+
+create_xlsx_file ("scraped_data.xlsx", headers , BusinessScraper.business_info)
